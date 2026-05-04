@@ -1,0 +1,31 @@
+local player = game.Players.LocalPlayer
+local runService = game:GetService("RunService")
+
+-- Ayarlar
+local autoOpen = true
+local eggName = "Common Egg" -- Açmak istediğin yumurtanın tam adı
+
+-- Yumurta açma fonksiyonu
+local function openEgg()
+    while autoOpen do
+        -- Pet Simulator 99'da genellikle 'RemoteEvent' kullanılır.
+        -- Bu satır, sunucuya "Ben bu yumurtayı açmak istiyorum" sinyali gönderir.
+        local args = {
+            [1] = eggName,
+            [2] = 1 -- Kaç adet açılacağı
+        }
+        
+        -- ÖNEMLİ: Oyunun gerçek RemoteEvent yolunu bulman gerekir. 
+        -- Genellikle ReplicatedStorage içinde yer alır.
+        game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_RequestPurchase"):InvokeServer(unpack(args))
+        
+        -- Sunucuyu yormamak ve banlanmamak için bekleme süresi
+        task.wait(0.5) 
+    end
+end
+
+-- Scripti başlat
+if autoOpen then
+    print("Auto-Egg baslatildi: " .. eggName)
+    task.spawn(openEgg)
+end
