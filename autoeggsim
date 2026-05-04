@@ -1,94 +1,108 @@
--- LOYAL SHOP HUB - V1.0 (Pet Simulator 99)
+-- FANTASY WORLD EVENT SCRIPT
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Önceki arayüzleri temizle
+if CoreGui:FindFirstChild("FantasyHub") then
+    CoreGui.FantasyHub:Destroy()
+end
+
+-- Arayüz Oluşturma
 local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "FantasyHub"
+ScreenGui.Parent = CoreGui
+
 local MainFrame = Instance.new("Frame")
-local Title = Instance.new("TextLabel")
-local EggButton = Instance.new("TextButton")
-local FarmButton = Instance.new("TextButton")
-
--- Arayüz Ayarları
-ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-ScreenGui.ResetOnSpawn = false
-
-MainFrame.Name = "LoyalHub"
+MainFrame.Size = UDim2.new(0, 250, 0, 200)
+MainFrame.Position = UDim2.new(0.5, -125, 0.4, -100)
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 0, 50) -- Fantezi Dünyası Teması (Mor)
+MainFrame.BorderSizePixel = 0
 MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-MainFrame.Position = UDim2.new(0.1, 0, 0.3, 0)
-MainFrame.Size = UDim2.new(0, 220, 0, 180)
-MainFrame.Active = true
-MainFrame.Draggable = true -- Paneli sürükleyebilirsin
 
-Title.Parent = MainFrame
+-- Kenarları yuvarla
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 10)
+Corner.Parent = MainFrame
+
+local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 40)
-Title.Text = "Loyal Shop Hub"
+Title.Text = "🍄 FANTASY HUB 🔮"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-Title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+Title.BackgroundColor3 = Color3.fromRGB(60, 20, 100)
 Title.Font = Enum.Font.SourceSansBold
-Title.TextSize = 20
+Title.TextSize = 18
+Title.Parent = MainFrame
+
+-- Buton Oluşturucu Fonksiyon
+local function createButton(name, pos, color)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.9, 0, 0, 40)
+    btn.Position = pos
+    btn.Text = name
+    btn.BackgroundColor3 = color
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.SourceSansSemibold
+    btn.TextSize = 16
+    btn.Parent = MainFrame
+    
+    local btnCorner = Instance.new("UICorner")
+    btnCorner.CornerRadius = UDim.new(0, 6)
+    btnCorner.Parent = btn
+    return btn
+end
+
+-- Butonlar
+local autoTrial = createButton("Auto Time Trial: KAPALI", UDim2.new(0.05, 0, 0.3, 0), Color3.fromRGB(150, 0, 0))
+local autoCombine = createButton("Auto Combine: KAPALI", UDim2.new(0.05, 0, 0.6, 0), Color3.fromRGB(150, 0, 0))
 
 -- Değişkenler
-local autoEgg = false
-local autoFarm = false
-local eggName = "Common Egg"
+local trialActive = false
+local combineActive = false
 
--- BUTON 1: Auto Egg
-EggButton.Parent = MainFrame
-EggButton.Position = UDim2.new(0.05, 0, 0.3, 0)
-EggButton.Size = UDim2.new(0.9, 0, 0, 40)
-EggButton.Text = "Auto Egg: KAPALI"
-EggButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-EggButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-EggButton.MouseButton1Click:Connect(function()
-    autoEgg = not autoEgg
-    if autoEgg then
-        EggButton.Text = "Auto Egg: AÇIK"
-        EggButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
-        -- Yumurta Açma Döngüsü
+-- FONKSİYON 1: Auto Time Trial
+autoTrial.MouseButton1Click:Connect(function()
+    trialActive = not trialActive
+    if trialActive then
+        autoTrial.Text = "Auto Time Trial: AÇIK"
+        autoTrial.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
         task.spawn(function()
-            while autoEgg do
-                local net = game:GetService("ReplicatedStorage"):FindFirstChild("Network")
-                if net and net:FindFirstChild("Eggs_RequestPurchase") then
-                    net.Eggs_RequestPurchase:InvokeServer(eggName, 1)
+            while trialActive do
+                -- Fantasy World'deki Time Trial Remote'u (Tahmini)
+                local net = ReplicatedStorage:FindFirstChild("Network")
+                if net then
+                    -- Bu kısım RemoteSpy ile bulacağın isme göre güncellenmeli
+                    pcall(function() net.TimeTrial_Start:InvokeServer() end)
                 end
-                task.wait(0.5)
+                task.wait(1)
             end
         end)
     else
-        EggButton.Text = "Auto Egg: KAPALI"
-        EggButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        autoTrial.Text = "Auto Time Trial: KAPALI"
+        autoTrial.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
     end
 end)
 
--- BUTON 2: Auto Farm
-FarmButton.Parent = MainFrame
-FarmButton.Position = UDim2.new(0.05, 0, 0.6, 0)
-FarmButton.Size = UDim2.new(0.9, 0, 0, 40)
-FarmButton.Text = "Auto Farm: KAPALI"
-FarmButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-FarmButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-FarmButton.MouseButton1Click:Connect(function()
-    autoFarm = not autoFarm
-    if autoFarm then
-        FarmButton.Text = "Auto Farm: AÇIK"
-        FarmButton.BackgroundColor3 = Color3.fromRGB(50, 200, 50)
-        -- Para Toplama Döngüsü
+-- FONKSİYON 2: Auto Combine (Otomatik Birleştirme)
+autoCombine.MouseButton1Click:Connect(function()
+    combineActive = not combineActive
+    if combineActive then
+        autoCombine.Text = "Auto Combine: AÇIK"
+        autoCombine.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
         task.spawn(function()
-            while autoFarm do
-                local things = workspace:FindFirstChild("__THINGS")
-                local coins = things and things:FindFirstChild("Coins")
-                if coins then
-                    for _, v in pairs(coins:GetChildren()) do
-                        if v:IsA("BasePart") then
-                            game:GetService("ReplicatedStorage").Network.Coins_Collect:FireServer(v.Name)
-                        end
-                    end
+            while combineActive do
+                local net = ReplicatedStorage:FindFirstChild("Network")
+                if net then
+                    -- Combine (Pet birleştirme) Remote'u
+                    pcall(function() net.Pets_CombineAll:InvokeServer() end)
                 end
-                task.wait(0.2)
+                task.wait(5)
             end
         end)
     else
-        FarmButton.Text = "Auto Farm: KAPALI"
-        FarmButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+        autoCombine.Text = "Auto Combine: KAPALI"
+        autoCombine.BackgroundColor3 = Color3.fromRGB(150, 0, 0)
     end
 end)
+
+print("Fantasy Hub Yuklendi!")
