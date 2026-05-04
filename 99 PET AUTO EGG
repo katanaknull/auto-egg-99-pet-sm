@@ -1,31 +1,59 @@
-local player = game.Players.LocalPlayer
-local runService = game:GetService("RunService")
+-- Basit Hub Tasarımı
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local ToggleButton = Instance.new("TextButton")
 
--- Ayarlar
-local autoOpen = true
-local eggName = "Common Egg" -- Açmak istediğin yumurtanın tam adı
+-- Arayüz Özellikleri
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
 
--- Yumurta açma fonksiyonu
+MainFrame.Name = "LoyalHub"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+MainFrame.Position = UDim2.new(0.05, 0, 0.4, 0)
+MainFrame.Size = UDim2.new(0, 200, 0, 150)
+MainFrame.Active = true
+MainFrame.Draggable = true -- Paneli ekranda sürükleyebilirsin
+
+Title.Parent = MainFrame
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "Loyal Shop Hub"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+
+ToggleButton.Parent = MainFrame
+ToggleButton.Position = UDim2.new(0.1, 0, 0.4, 0)
+ToggleButton.Size = UDim2.new(0.8, 0, 0, 50)
+ToggleButton.Text = "Auto Egg: KAPALI"
+ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+-- Degiskenler
+local autoOpen = false
+local eggName = "Common Egg"
+
+-- Fonksiyon: Yumurta Acma
 local function openEgg()
     while autoOpen do
-        -- Pet Simulator 99'da genellikle 'RemoteEvent' kullanılır.
-        -- Bu satır, sunucuya "Ben bu yumurtayı açmak istiyorum" sinyali gönderir.
-        local args = {
-            [1] = eggName,
-            [2] = 1 -- Kaç adet açılacağı
-        }
-        
-        -- ÖNEMLİ: Oyunun gerçek RemoteEvent yolunu bulman gerekir. 
-        -- Genellikle ReplicatedStorage içinde yer alır.
-        game:GetService("ReplicatedStorage"):WaitForChild("Network"):WaitForChild("Eggs_RequestPurchase"):InvokeServer(unpack(args))
-        
-        -- Sunucuyu yormamak ve banlanmamak için bekleme süresi
-        task.wait(0.5) 
+        local network = game:GetService("ReplicatedStorage"):FindFirstChild("Network")
+        if network and network:FindFirstChild("Eggs_RequestPurchase") then
+            network.Eggs_RequestPurchase:InvokeServer(eggName, 1)
+        end
+        task.wait(0.5)
     end
 end
 
--- Scripti başlat
-if autoOpen then
-    print("Auto-Egg baslatildi: " .. eggName)
-    task.spawn(openEgg)
-end
+-- Buton Tiklama Olayı
+ToggleButton.MouseButton1Click:Connect(function()
+    autoOpen = not autoOpen
+    
+    if autoOpen then
+        ToggleButton.Text = "Auto Egg: AÇIK"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+        task.spawn(openEgg)
+    else
+        ToggleButton.Text = "Auto Egg: KAPALI"
+        ToggleButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+    end
+end)
